@@ -8,7 +8,6 @@ import thunk from "redux-thunk";
 import {auth} from "./actions";
 import ponyApp from "./reducers";
 
-import PonyNote from "./components/PonyNote";
 
 import ChatRoom from "./components/Chat";
 import NotFound from "./components/NotFound";

@@ -5,10 +5,8 @@ import {chats} from "../actions";
 import ChatMessage from './ChatMessage';
 import messageReducer from '../reducers/chats';
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faAddressBook } from '@fortawesome/free-solid-svg-icons'
 import { PanelGroup } from 'react-bootstrap';
-import { Panel, Form, FormGroup, FormControl, Button, ControlLabel } from 'react-bootstrap'
+import { Panel } from 'react-bootstrap'
 
 
 class Presentational extends Component {
@@ -18,6 +16,8 @@ class Presentational extends Component {
     this.submitMessage = this.submitMessage.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
+    this.handleChatAreaKeyPress = this.handleChatAreaKeyPress.bind(this);
+    this.handleDefaultKeyPress = this.handleDefaultKeyPress.bind(this);
   }
 
   componentDidMount() {
@@ -32,7 +32,6 @@ class Presentational extends Component {
 
   handleChange(event) {
     let value = event.target.value;
-
     this.props.changeChatInput(value);
   }
 
@@ -42,13 +41,22 @@ class Presentational extends Component {
     }
   }
 
-  handleKeyPress(event) {
+  handleChatAreaKeyPress(event) {
     if (event.keyCode === 16) {
         this.props.changeShiftPressed(true);
     }
     if (event.keyCode === 13 && !this.props.shiftPressed) {
       this.props.submitNewMessage(this.props.input);
     }
+  }
+  handleDefaultKeyPress(event) {
+    return;
+  }
+
+  handleKeyPress(event) {
+    let functions = {chatTextArea: this.handleChatAreaKeyPress};
+    let result = functions[event.target.id] || this.handleDefaultKeyPress;
+    return result(event);
   }
 
   submitMessage(event) {
@@ -60,16 +68,14 @@ class Presentational extends Component {
     return (
       <div>
         <h2>Chat Room</h2>
-        <div>
-
-        </div>
         <PanelGroup accordion id="accordion-example">
             <Panel eventKey="1">
                 <Panel.Heading>
                     <Panel.Title toggle>Conversation</Panel.Title>
                 </Panel.Heading>
-                <Panel.Body >
+                <Panel.Body>
                     <textarea
+                     id='chatTextArea'
                      value={this.props.input}
                      onChange={this.handleChange}
                      />
@@ -79,14 +85,16 @@ class Presentational extends Component {
                 <Panel.Heading>
                     <Panel.Title toggle>Conversation</Panel.Title>
                 </Panel.Heading>
-                <Panel.Body >
+                <Panel.Body collapsible>
                 {
                     this.props.messages.map( (message, index) => {
+                    message = message || '';
                     let bubbleClass = index % 2? 'bubble me': 'bubble you';
                     let bubbleDirection = index % 2? 'bubble-container bubble-direction-reverse': 'bubble-container bubble-direction';
                     return (
                         <ChatMessage message={message} index={index} bubbleDirection={bubbleDirection}
-                        bubbleClass={bubbleClass}/>
+                         bubbleClass={bubbleClass} key={index} editMessage={this.props.editMessage}
+                         deleteMessage={this.props.deleteMessage}/>
                     );
                   })
                 }
@@ -116,6 +124,12 @@ const mapDispatchToProps = (dispatch) => {
     },
     changeShiftPressed: (shiftPressed) => {
         dispatch(chats.changeShiftPressed(shiftPressed));
+    },
+    editMessage: (index, message) => {
+        dispatch(chats.editMessage(index, message));
+    },
+    deleteMessage: (index) => {
+        dispatch(chats.deleteMessage(index));
     }
   }
 };

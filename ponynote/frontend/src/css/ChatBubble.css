@@ -121,16 +121,17 @@ textarea {
   font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 1em;
   line-height: 1.4em;
+  resize: none;
   padding: 5px 8px;
   transition: background-color 0.2s ease 0s;
 }
 
 .submit-button {
-  margin-top: 8px;
-  margin-bottom: 8px;
+  margin-top: 0%;
+  margin-bottom: 0%;
   display:flex;
   font-size: 14px;
-  align-items: center;
+  align-items: left;
 }
 
 textarea:focus {
