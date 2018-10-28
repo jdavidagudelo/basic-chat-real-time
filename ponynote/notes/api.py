@@ -1,4 +1,5 @@
-from rest_framework import viewsets, permissions, generics
+from rest_framework import viewsets, permissions
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from knox.models import AuthToken
@@ -18,7 +19,7 @@ class NoteViewSet(viewsets.ModelViewSet):
         serializer.save(owner=self.request.user)
 
 
-class RegistrationAPI(generics.GenericAPIView):
+class RegistrationAPI(CreateAPIView):
     serializer_class = CreateUserSerializer
 
     def post(self, request, *args, **kwargs):
@@ -31,7 +32,7 @@ class RegistrationAPI(generics.GenericAPIView):
         })
 
 
-class LoginAPI(generics.GenericAPIView):
+class LoginAPI(CreateAPIView):
     serializer_class = LoginUserSerializer
 
     def post(self, request, *args, **kwargs):
@@ -44,7 +45,7 @@ class LoginAPI(generics.GenericAPIView):
         })
 
 
-class UserAPI(generics.RetrieveAPIView):
+class UserAPI(RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated, ]
     serializer_class = UserSerializer
 
