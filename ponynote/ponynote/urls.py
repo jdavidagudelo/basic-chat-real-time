@@ -17,9 +17,11 @@ from django.conf.urls import url, include
 from django.views.generic import TemplateView
 
 from notes import endpoints
+from chats import urls
 
 urlpatterns = [
     url(r'^api/', include(endpoints)),
+    url(r'^api/', include(urls)),
     url(r'^api/auth/', include('knox.urls')),
     url(r'^', TemplateView.as_view(template_name="index.html")),
 ]

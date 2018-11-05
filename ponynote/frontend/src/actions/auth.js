@@ -2,14 +2,14 @@ export const loadUser = () => {
     return (dispatch, getState) => {
         dispatch({type: "USER_LOADING"});
 
-        const token = getState().auth.token;
-
         let headers = {
             "Content-Type": "application/json",
         };
 
+        let token = getState().auth.token;
+
         if (token) {
-            headers["Authorization"] = `Token ${token}`;
+            headers["X-AUTH-TOKEN"] = token;
         }
         return fetch("/api/auth/user/", {headers, })
             .then(res => {

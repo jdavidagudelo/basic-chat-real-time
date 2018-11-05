@@ -1,15 +1,19 @@
 import React, { Component } from 'react';
 import {connect, Provider} from 'react-redux';
-import { createStore } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import {chats} from "../actions";
+import {auth} from "../actions";
+import thunk from 'redux-thunk';
 import ChatMessage from './ChatMessage';
 import messageReducer from '../reducers/chats';
+import { PanelGroup, Nav, Navbar, NavDropdown, NavItem, MenuItem } from 'react-bootstrap';
+import { Panel } from 'react-bootstrap';
+import socketIOClient from "socket.io-client";
 
-import { PanelGroup } from 'react-bootstrap';
-import { Panel } from 'react-bootstrap'
 
+const store = createStore(messageReducer, applyMiddleware(thunk));
 
-class Presentational extends Component {
+class Chat extends Component {
   constructor(props) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
@@ -18,9 +22,18 @@ class Presentational extends Component {
     this.handleKeyUp = this.handleKeyUp.bind(this);
     this.handleChatAreaKeyPress = this.handleChatAreaKeyPress.bind(this);
     this.handleDefaultKeyPress = this.handleDefaultKeyPress.bind(this);
+    this.addMessageRealTime = this.addMessageRealTime.bind(this);
+  }
+
+  addMessageRealTime(message) {
+    this.props.addMessageRealTime(message);
   }
 
   componentDidMount() {
+    const endpoint = "http://127.0.0.1:4001";
+    const socket = socketIOClient(endpoint);
+    socket.on('send:message', this.addMessageRealTime);
+    this.props.fetchChats();
     document.addEventListener('keydown', this.handleKeyPress);
     document.addEventListener('keyup', this.handleKeyUp);
   }
@@ -81,19 +94,20 @@ class Presentational extends Component {
                      />
                 </Panel.Body>
             </Panel>
-            <Panel eventKey="2">
+            <Panel eventKey="2" >
                 <Panel.Heading>
                     <Panel.Title toggle>Conversation</Panel.Title>
                 </Panel.Heading>
-                <Panel.Body collapsible>
+                <Panel.Body>
                 {
                     this.props.messages.map( (message, index) => {
-                    message = message || '';
+                    let messageText = message.text || '';
                     let bubbleClass = index % 2? 'bubble me': 'bubble you';
                     let bubbleDirection = index % 2? 'bubble-container bubble-direction-reverse': 'bubble-container bubble-direction';
                     return (
-                        <ChatMessage message={message} index={index} bubbleDirection={bubbleDirection}
-                         bubbleClass={bubbleClass} key={index} editMessage={this.props.editMessage}
+                        <ChatMessage message={messageText} id={message.id} bubbleDirection={bubbleDirection}
+                         index={index} bubbleClass={bubbleClass} key={message.id} createdAt={message.created_at}
+                         editMessage={this.props.editMessage} user={message.receiver}
                          deleteMessage={this.props.deleteMessage}/>
                     );
                   })
@@ -108,14 +122,18 @@ class Presentational extends Component {
 
 const mapStateToProps = (state) => {
   return {
-    messages: state.messages,
-    input: state.input,
-    shiftPressed: state.shiftPressed
+    messages: state.chats.messages,
+    auth: state.auth,
+    input: state.chats.input,
+    shiftPressed: state.chats.shiftPressed
   }
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    addMessageRealTime: (message) => {
+        dispatch(chats.addMessageRealTime(message));
+    },
     submitNewMessage: (message) => {
       dispatch(chats.addMessage(message))
     },
@@ -125,26 +143,17 @@ const mapDispatchToProps = (dispatch) => {
     changeShiftPressed: (shiftPressed) => {
         dispatch(chats.changeShiftPressed(shiftPressed));
     },
-    editMessage: (index, message) => {
-        dispatch(chats.editMessage(index, message));
+    editMessage: (index, message, id, user) => {
+        dispatch(chats.editMessage(index, message, id, user));
     },
-    deleteMessage: (index) => {
-        dispatch(chats.deleteMessage(index));
-    }
+    deleteMessage: (index, id) => {
+        dispatch(chats.deleteMessage(index, id));
+    },
+    fetchChats: () => {
+        dispatch(chats.fetchChats());
+    },
   }
 };
 
-const store = createStore(messageReducer);
-const Container = connect(mapStateToProps, mapDispatchToProps)(Presentational);
 
-class ChatRoom extends React.Component {
-  render() {
-    return (
-      <Provider store={store}>
-        <Container/>
-      </Provider>
-    );
-  }
-};
-
-export default ChatRoom;
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);

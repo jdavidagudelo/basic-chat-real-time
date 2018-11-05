@@ -8,11 +8,12 @@ import thunk from "redux-thunk";
 import {auth} from "./actions";
 import ponyApp from "./reducers";
 
-
-import ChatRoom from "./components/Chat";
+import PonyNote from "./components/PonyNote";
+import Chat from "./components/Chat";
 import NotFound from "./components/NotFound";
 import Register from "./components/Register";
 import Login from "./components/Login";
+import { PanelGroup, Nav, Navbar, NavDropdown, NavItem, MenuItem } from 'react-bootstrap';
 
 let store = createStore(ponyApp, applyMiddleware(thunk));
 
@@ -38,8 +39,9 @@ class RootContainerComponent extends Component {
         let {PrivateRoute} = this;
         return (
             <BrowserRouter>
+
                 <Switch>
-                    <PrivateRoute exact path="/" component={ChatRoom} />
+                    <PrivateRoute exact path="/" component={Chat} />
                     <Route exact path="/register" component={Register} />
                     <Route exact path="/login" component={Login} />
                     <Route component={NotFound} />
