@@ -7,4 +7,8 @@ module.exports = function (socket) {
     socket.broadcast.emit('send:message', data);
   });
 
+  socket.on('delete:message', function (data) {
+    socket.broadcast.emit('delete:message', data);
+  });
+
 };

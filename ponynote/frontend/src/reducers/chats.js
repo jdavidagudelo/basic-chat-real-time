@@ -8,7 +8,15 @@ const initialState = {messages: [], input: '', shiftPressed: false};
 const deleteMessageFunction = (state, action) => {
     let messages = state.messages || [];
     messages = messages.slice(0);
-    messages.splice(action.index, 1);
+    let ids = messages.map((v, index) => v.id);
+    let currentIndex = ids.indexOf(action.id);
+    if(currentIndex < 0){
+        return state;
+    }
+    const endpoint = "http://127.0.0.1:4001";
+    const socket = socketIOClient(endpoint);
+    socket.emit('delete:message', {index: currentIndex, id: action.id});
+    messages.splice(currentIndex, 1);
     let result = Object.assign({}, state, {
         messages: messages,
         input: state.input,
@@ -104,7 +112,6 @@ const changeInputFunction = (state, action) => {
             value = value.substring(0, value.length - 1);
         }
     }
-
     let result = Object.assign({}, state, {
         messages: state.messages || [],
         input: value,

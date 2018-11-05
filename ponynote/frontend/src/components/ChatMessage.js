@@ -7,6 +7,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import '../css/chat.css';
 import '../css/chat.scss';
+import socketIOClient from "socket.io-client";
 
 class ChatMessage extends React.Component {
    constructor(props) {
@@ -15,9 +16,17 @@ class ChatMessage extends React.Component {
      this.handleChange = this.handleChange.bind(this);
      this.deleteMessage = this.deleteMessage.bind(this);
      this.handleBlur = this.handleBlur.bind(this);
+     this.deleteMessageRealTime = this.deleteMessageRealTime.bind(this);
    }
-
-    handleBlur(event){
+    componentDidMount() {
+        const endpoint = "http://127.0.0.1:4001";
+        const socket = socketIOClient(endpoint);
+        socket.on('delete:message', this.deleteMessageRealTime);
+    }
+    deleteMessageRealTime(data){
+        this.props.deleteMessage(data.index, data.id);
+    }
+    handleBlur(event) {
         this.props.editMessage(this.props.index, this.state.message, this.props.id, this.props.user, this.props.createdAt);
     }
 
@@ -56,5 +65,8 @@ class ChatMessage extends React.Component {
     );
   }
 };
+
+
+
 
 export default ChatMessage;
