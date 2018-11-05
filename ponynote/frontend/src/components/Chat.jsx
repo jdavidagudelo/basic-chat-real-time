@@ -143,8 +143,8 @@ const mapDispatchToProps = (dispatch) => {
     changeShiftPressed: (shiftPressed) => {
         dispatch(chats.changeShiftPressed(shiftPressed));
     },
-    editMessage: (index, message, id, user) => {
-        dispatch(chats.editMessage(index, message, id, user));
+    editMessage: (index, message, id, user, created_at) => {
+        dispatch(chats.editMessage(index, message, id, user, created_at));
     },
     deleteMessage: (index, id) => {
         dispatch(chats.deleteMessage(index, id));

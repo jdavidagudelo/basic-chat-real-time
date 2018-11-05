@@ -11,13 +11,19 @@ import '../css/chat.scss';
 class ChatMessage extends React.Component {
    constructor(props) {
      super(props);
+     this.state = {message: this.props.message};
      this.handleChange = this.handleChange.bind(this);
      this.deleteMessage = this.deleteMessage.bind(this);
+     this.handleBlur = this.handleBlur.bind(this);
    }
+
+    handleBlur(event){
+        this.props.editMessage(this.props.index, this.state.message, this.props.id, this.props.user, this.props.createdAt);
+    }
 
     handleChange(event) {
         let value = event.target.value;
-        this.props.editMessage(this.props.index, value, this.props.id, this.props.user);
+        this.setState({message: value});
     }
    deleteMessage(event) {
         event.preventDefault();
@@ -39,7 +45,7 @@ class ChatMessage extends React.Component {
                         <Image src="https://images.pexels.com/photos/458766/pexels-photo-458766.jpeg?cs=srgb&dl=attractive-beautiful-beautiful-girl-458766.jpg&fm=jpg" thumbnail />
                     </Col>
                     <Col xs={8} md={8}>
-                        <Textarea key={this.props.id} value={this.props.message} onChange={this.handleChange}></Textarea>
+                        <Textarea key={this.props.id} value={this.state.message} onChange={this.handleChange} onBlur={this.handleBlur}></Textarea>
                     </Col>
                     <Col xs={1} md={1}>
                         <Button bsStyle="danger" onClick={this.deleteMessage}><i><FontAwesomeIcon icon={faTrash} /></i></Button>

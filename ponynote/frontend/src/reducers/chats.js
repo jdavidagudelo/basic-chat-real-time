@@ -50,6 +50,9 @@ const editMessageFunction = (state, action) => {
             })
             .then(res => {
             });
+    const endpoint = "http://127.0.0.1:4001";
+    const socket = socketIOClient(endpoint);
+    socket.emit('send:message', action.message);
     let messages = state.messages || [];
     messages = messages.slice(0);
     messages[action.index] = action.message;
@@ -72,7 +75,7 @@ const addMessageFunction = (state, action) => {
   let currentIndex = ids.indexOf(action.message.id);
   if(currentIndex >= 0) {
     messages = messages.slice(0);
-    messages[action.index] = action.message;
+    messages[currentIndex] = action.message;
     let result = Object.assign({}, state, {
         messages: messages,
         input: state.input,

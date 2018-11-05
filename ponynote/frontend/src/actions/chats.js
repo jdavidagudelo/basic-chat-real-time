@@ -68,10 +68,10 @@ export const deleteMessage = (index, id) => {
     }
 };
 
-export const editMessage = (index, message, id, user) => {
+export const editMessage = (index, message, id, user, created_at) => {
     return (dispatch, getState) => {
         let token = getState().auth.token;
-        return dispatch({type: EDIT_MESSAGE, message: {text: message, id: id, receiver: user}, index: index, token: token});
+        return dispatch({type: EDIT_MESSAGE, message: {text: message, id: id, receiver: user, created_at: created_at}, index: index, token: token});
     }
 };
 
