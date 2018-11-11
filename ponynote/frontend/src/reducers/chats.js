@@ -1,8 +1,9 @@
 import {ADD, CHANGE_INPUT, CHANGE_SHIFT_PRESSED, EDIT_MESSAGE, DELETE_MESSAGE, FETCH_CHATS} from '../actions/chats';
 import socketIOClient from "socket.io-client";
+const uuidv4 = require('uuid/v4');
 
 
-const initialState = {messages: [], input: '', shiftPressed: false};
+const initialState = {messages: [], input: '', shiftPressed: false, randomId: uuidv4()};
 
 
 const deleteMessageFunction = (state, action) => {
@@ -13,62 +14,51 @@ const deleteMessageFunction = (state, action) => {
     if(currentIndex < 0){
         return state;
     }
-    const endpoint = "http://127.0.0.1:4001";
-    const socket = socketIOClient(endpoint);
-    socket.emit('delete:message', {index: currentIndex, id: action.id});
+    if(!action.realTime){
+        const endpoint = "http://127.0.0.1:4001";
+        const socket = socketIOClient(endpoint);
+        socket.emit('delete:message', {index: currentIndex, id: action.id});
+    }
     messages.splice(currentIndex, 1);
-    let result = Object.assign({}, state, {
-        messages: messages,
-        input: state.input,
-        shiftPressed: state.shiftPressed
-    });
+    let result = {...state, messages: messages};
     return result;
 };
 
 const fetchChatsFunction = (state, action) => {
     let messages = action.messages;
-    let result = Object.assign({}, state, {
-        messages: messages,
-        input: state.input,
-        shiftPressed: state.shiftPressed
-    });
+    let result = {...state, messages: messages};
     return result;
 
 }
 
 const editMessageFunction = (state, action) => {
-        let headers = {"Content-Type": "application/json"};
-        let token = action.token;
-
-        if (token) {
-            headers["X-AUTH-TOKEN"] = token;
-        }
-
-        let body = JSON.stringify({text: action.message.text});
-        fetch('/api/chat_messages/' + action.message.id + '/', {headers, method: "PATCH", body})
-            .then(res => {
-                if (res.status < 500) {
-                    return res.json().then(data => {
-                        return {status: res.status, data: data};
-                    })
-                } else {
-                    console.log("Server Error!");
-                    throw res;
-                }
-            })
-            .then(res => {
-            });
-    const endpoint = "http://127.0.0.1:4001";
-    const socket = socketIOClient(endpoint);
-    socket.emit('send:message', action.message);
+    let headers = {"Content-Type": "application/json"};
+    let token = action.token;
+    if (token) {
+        headers["X-AUTH-TOKEN"] = token;
+    }
+    let body = JSON.stringify({text: action.message.text});
+    fetch('/api/chat_messages/' + action.message.id + '/', {headers, method: "PATCH", body})
+        .then(async res => {
+            if (res.status < 500) {
+                const data = await res.json();
+                return { status: res.status, data: data };
+            } else {
+                console.log("Server Error!");
+                throw res;
+            }
+        })
+        .then(res => {
+    });
     let messages = state.messages || [];
     messages = messages.slice(0);
-    messages[action.index] = action.message;
-    let result = Object.assign({}, state, {
-        messages: messages,
-        input: state.input,
-        shiftPressed: state.shiftPressed
-    });
+    let ids = messages.map((v, index) => v.id);
+    let currentIndex = ids.indexOf(action.id);
+    if (currentIndex < 0){
+        return state;
+    }
+    messages[currentIndex] = action.message;
+    let result = {...state, messages: messages};
     return result;
 };
 
@@ -76,7 +66,7 @@ const addMessageFunction = (state, action) => {
   if (!action.realTime){
     const endpoint = "http://127.0.0.1:4001";
     const socket = socketIOClient(endpoint);
-    socket.emit('send:message', action.message);
+    socket.emit('send:message', {id: action.randomId, message: action.message});
   }
   let messages = state.messages || [];
   let ids = messages.map((v, index) => v.id);
@@ -84,19 +74,11 @@ const addMessageFunction = (state, action) => {
   if(currentIndex >= 0) {
     messages = messages.slice(0);
     messages[currentIndex] = action.message;
-    let result = Object.assign({}, state, {
-        messages: messages,
-        input: state.input,
-        shiftPressed: state.shiftPressed
-    });
+    let result = {...state, messages: messages};
     return result;
   }
-  messages = [action.message].concat(messages);
-  let result = Object.assign({}, state, {
-    messages: messages,
-    input: '',
-    shiftPressed: state.shiftPressed
-  });
+  messages = [action.message, ...messages];
+  let result = {...state, input: '', messages: messages};
   return result;
 };
 
@@ -112,20 +94,12 @@ const changeInputFunction = (state, action) => {
             value = value.substring(0, value.length - 1);
         }
     }
-    let result = Object.assign({}, state, {
-        messages: state.messages || [],
-        input: value,
-        shiftPressed: state.shiftPressed
-    });
+    let result = {...state, input: value};
     return result;
 };
 
 const changeShiftFunction = (state, action) => {
-    let result = Object.assign({}, state, {
-        messages: state.messages || [],
-        input: state.input || '',
-        shiftPressed: action.shiftPressed
-    });
+    let result = {...state, shiftPressed: action.shiftPressed};
     return result;
 };
 

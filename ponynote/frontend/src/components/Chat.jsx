@@ -1,17 +1,11 @@
 import React, { Component } from 'react';
-import {connect, Provider} from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import {connect} from 'react-redux';
 import {chats} from "../actions";
-import {auth} from "../actions";
-import thunk from 'redux-thunk';
-import ChatMessage from './ChatMessage';
-import messageReducer from '../reducers/chats';
-import { PanelGroup, Nav, Navbar, NavDropdown, NavItem, MenuItem } from 'react-bootstrap';
-import { Panel } from 'react-bootstrap';
+import ChatList from './ChatList';
+import ChatInput from './ChatInput';
+import { PanelGroup } from 'react-bootstrap';
 import socketIOClient from "socket.io-client";
 
-
-const store = createStore(messageReducer, applyMiddleware(thunk));
 
 class Chat extends Component {
   constructor(props) {
@@ -26,7 +20,10 @@ class Chat extends Component {
   }
 
   addMessageRealTime(message) {
-    this.props.addMessageRealTime(message);
+    console.log(message);
+    if(message.id !== this.props.randomId) {
+      this.props.addMessageRealTime(message.message);
+    }
   }
 
   componentDidMount() {
@@ -59,7 +56,7 @@ class Chat extends Component {
         this.props.changeShiftPressed(true);
     }
     if (event.keyCode === 13 && !this.props.shiftPressed) {
-      this.props.submitNewMessage(this.props.input);
+      this.props.submitNewMessage(this.props.input, this.props.randomId);
     }
   }
   handleDefaultKeyPress(event) {
@@ -74,7 +71,7 @@ class Chat extends Component {
 
   submitMessage(event) {
     event.preventDefault();
-    this.props.submitNewMessage(this.props.input);
+    this.props.submitNewMessage(this.props.input, this.props.randomId);
   }
 
   render() {
@@ -82,38 +79,10 @@ class Chat extends Component {
       <div>
         <h2>Chat Room</h2>
         <PanelGroup accordion id="accordion-example">
-            <Panel eventKey="1">
-                <Panel.Heading>
-                    <Panel.Title toggle>Conversation</Panel.Title>
-                </Panel.Heading>
-                <Panel.Body>
-                    <textarea
-                     id='chatTextArea'
-                     value={this.props.input}
-                     onChange={this.handleChange}
-                     />
-                </Panel.Body>
-            </Panel>
-            <Panel eventKey="2" >
-                <Panel.Heading>
-                    <Panel.Title toggle>Conversation</Panel.Title>
-                </Panel.Heading>
-                <Panel.Body>
-                {
-                    this.props.messages.map( (message, index) => {
-                    let messageText = message.text || '';
-                    let bubbleClass = index % 2? 'bubble me': 'bubble you';
-                    let bubbleDirection = index % 2? 'bubble-container bubble-direction-reverse': 'bubble-container bubble-direction';
-                    return (
-                        <ChatMessage message={messageText} id={message.id} bubbleDirection={bubbleDirection}
-                         index={index} bubbleClass={bubbleClass} key={message.id} createdAt={message.created_at}
-                         editMessage={this.props.editMessage} user={message.receiver}
-                         deleteMessage={this.props.deleteMessage}/>
-                    );
-                  })
-                }
-                </Panel.Body>
-            </Panel>
+            <ChatInput input={this.props.input} handleChange={this.handleChange}></ChatInput>
+            <ChatList editMessage={this.props.editMessage} deleteMessage={this.props.deleteMessage}
+                messages={this.props.messages} randomId={this.props.randomId}
+                deleteMessageRealTime={this.props.deleteMessageRealTime}></ChatList>
          </PanelGroup>
       </div>
     );
@@ -122,6 +91,7 @@ class Chat extends Component {
 
 const mapStateToProps = (state) => {
   return {
+    randomId: state.chats.randomId,
     messages: state.chats.messages,
     auth: state.auth,
     input: state.chats.input,
@@ -131,11 +101,14 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    deleteMessageRealTime: (index, id, randomId) =>{
+      dispatch(chats.deleteMessageRealTime(index, id, randomId));
+    },
     addMessageRealTime: (message) => {
         dispatch(chats.addMessageRealTime(message));
     },
-    submitNewMessage: (message) => {
-      dispatch(chats.addMessage(message))
+    submitNewMessage: (message, randomId) => {
+      dispatch(chats.addMessage(message, randomId))
     },
     changeChatInput: (input) => {
         dispatch(chats.changeInput(input));

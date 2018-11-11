@@ -8,12 +8,10 @@ import thunk from "redux-thunk";
 import {auth} from "./actions";
 import ponyApp from "./reducers";
 
-import PonyNote from "./components/PonyNote";
 import Chat from "./components/Chat";
 import NotFound from "./components/NotFound";
 import Register from "./components/Register";
 import Login from "./components/Login";
-import { PanelGroup, Nav, Navbar, NavDropdown, NavItem, MenuItem } from 'react-bootstrap';
 
 let store = createStore(ponyApp, applyMiddleware(thunk));
 

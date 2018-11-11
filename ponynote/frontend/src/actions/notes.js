@@ -8,11 +8,10 @@ export const fetchNotes = () => {
         }
 
         return fetch("/api/notes/", {headers, })
-            .then(res => {
+            .then(async res => {
                 if (res.status < 500) {
-                    return res.json().then(data => {
-                        return {status: res.status, data};
-                    })
+                    const data = await res.json();
+                    return { status: res.status, data };
                 } else {
                     console.log("Server Error!");
                     throw res;
@@ -40,11 +39,10 @@ export const addNote = text => {
 
         let body = JSON.stringify({text, });
         return fetch("/api/notes/", {headers, method: "POST", body})
-            .then(res => {
+            .then(async res => {
                 if (res.status < 500) {
-                    return res.json().then(data => {
-                        return {status: res.status, data};
-                    })
+                    const data = await res.json();
+                    return { status: res.status, data };
                 } else {
                     console.log("Server Error!");
                     throw res;
@@ -75,11 +73,10 @@ export const updateNote = (index, text) => {
         let noteId = getState().notes[index].id;
 
         return fetch(`/api/notes/${noteId}/`, {headers, method: "PUT", body})
-            .then(res => {
+            .then(async res => {
                 if (res.status < 500) {
-                    return res.json().then(data => {
-                        return {status: res.status, data};
-                    })
+                    const data = await res.json();
+                    return { status: res.status, data };
                 } else {
                     console.log("Server Error!");
                     throw res;

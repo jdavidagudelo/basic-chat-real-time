@@ -39,7 +39,7 @@ export const fetchChats = () => {
 }
 
 
-export const deleteMessage = (index, id) => {
+export const deleteMessage = (index, id, randomId) => {
     return (dispatch, getState) => {
         let headers = {"Content-Type": "application/json"};
         let token = getState().auth.token;
@@ -59,7 +59,8 @@ export const deleteMessage = (index, id) => {
             })
             .then(res => {
                 if (res.status === 204 || res.status === 404 || res.status === 200) {
-                    return dispatch({type: DELETE_MESSAGE, index: index, id: id});
+                    return dispatch({type: DELETE_MESSAGE, index: index, id: id, 
+                        realTime: false, randomId});
                 } else if (res.status === 401 || res.status === 403) {
                     dispatch({type: "AUTHENTICATION_ERROR", data: res.data});
                     throw res.data;
@@ -86,7 +87,12 @@ export const addMessageRealTime = (message) => {
     return {type: ADD, message: message, realTime: true};
 };
 
-export const addMessage = (message) => {
+export const deleteMessageRealTime = (index, id, randomId) => {
+    return {type: DELETE_MESSAGE, index: index, id: id, randomId: randomId, realTime: true};
+};
+
+
+export const addMessage = (message, randomId) => {
     return (dispatch, getState) => {
         let headers = {"Content-Type": "application/json"};
         let token = getState().auth.token;
@@ -109,7 +115,7 @@ export const addMessage = (message) => {
             })
             .then(res => {
                 if (res.status === 201) {
-                    return dispatch({type: ADD, message: res.data, realTime: false});
+                    return dispatch({type: ADD, message: res.data, realTime: false, randomId});
                 } else if (res.status === 401 || res.status === 403) {
                     dispatch({type: "AUTHENTICATION_ERROR", data: res.data});
                     throw res.data;

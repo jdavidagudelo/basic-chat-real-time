@@ -18,21 +18,26 @@ class ChatMessage extends React.Component {
      this.handleBlur = this.handleBlur.bind(this);
      this.deleteMessageRealTime = this.deleteMessageRealTime.bind(this);
    }
+   shouldComponentUpdate(nextProps) {
+    return (nextProps.message !== this.props.message);
+    }
     componentDidMount() {
         const endpoint = "http://127.0.0.1:4001";
         const socket = socketIOClient(endpoint);
         socket.on('delete:message', this.deleteMessageRealTime);
     }
     deleteMessageRealTime(data){
-        this.props.deleteMessage(data.index, data.id);
+        this.props.deleteMessageRealTime(data.index, data.id, this.props.randomId);
     }
     handleBlur(event) {
-        this.props.editMessage(this.props.index, this.state.message, this.props.id, this.props.user, this.props.createdAt);
+        const endpoint = "http://127.0.0.1:4001";
+        const socket = socketIOClient(endpoint);
+        socket.emit('send:message', {randomId: this.props.randomId, message: this.props.message});
     }
 
     handleChange(event) {
         let value = event.target.value;
-        this.setState({message: value});
+        this.props.editMessage(this.props.index, value, this.props.id, this.props.message.receiver, this.props.createdAt);
     }
    deleteMessage(event) {
         event.preventDefault();
@@ -45,8 +50,8 @@ class ChatMessage extends React.Component {
             <Grid>
                 <Row>
                     <div>
-                        <span className="message-data-name"><FontAwesomeIcon icon={faCircle} /> {this.props.user.username} </span>
-                        <span className="message-data-time">{this.props.createdAt}</span>
+                        <span className="message-data-name"><FontAwesomeIcon icon={faCircle} /> {this.props.message.receiver.username} </span>
+                        <span className="message-data-time">{this.props.message.created_at}</span>
                     </div>
                 </Row>
                 <Row>
@@ -54,7 +59,7 @@ class ChatMessage extends React.Component {
                         <Image src="https://images.pexels.com/photos/458766/pexels-photo-458766.jpeg?cs=srgb&dl=attractive-beautiful-beautiful-girl-458766.jpg&fm=jpg" thumbnail />
                     </Col>
                     <Col xs={8} md={8}>
-                        <Textarea key={this.props.id} value={this.state.message} onChange={this.handleChange} onBlur={this.handleBlur}></Textarea>
+                        <Textarea key={this.props.message.id} value={this.props.message.text} onChange={this.handleChange} onBlur={this.handleBlur}></Textarea>
                     </Col>
                     <Col xs={1} md={1}>
                         <Button bsStyle="danger" onClick={this.deleteMessage}><i><FontAwesomeIcon icon={faTrash} /></i></Button>
