@@ -17,11 +17,10 @@ export const fetchChats = () => {
         }
 
         return fetch("/api/chat_messages/", {headers, })
-            .then(res => {
+            .then(async res => {
                 if (res.status < 500) {
-                    return res.json().then(data => {
-                        return {status: res.status, data: data};
-                    })
+                    const data = await res.json();
+                    return { status: res.status, data: data };
                 } else {
                     console.log("Server Error!");
                     throw res;

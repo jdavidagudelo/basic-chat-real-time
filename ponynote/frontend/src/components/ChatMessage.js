@@ -12,18 +12,23 @@ import socketIOClient from "socket.io-client";
 class ChatMessage extends React.Component {
    constructor(props) {
      super(props);
-     this.state = {message: this.props.message};
      this.handleChange = this.handleChange.bind(this);
      this.deleteMessage = this.deleteMessage.bind(this);
      this.handleBlur = this.handleBlur.bind(this);
      this.deleteMessageRealTime = this.deleteMessageRealTime.bind(this);
    }
    shouldComponentUpdate(nextProps) {
-    return (nextProps.message !== this.props.message);
-    }
+        return (nextProps.message !== this.props.message);
+   }
     componentDidMount() {
         const endpoint = "http://127.0.0.1:4001";
         const socket = socketIOClient(endpoint);
+        socket.on('disconnect', (reason) => {
+            console.log(reason);
+            if (reason === 'transport close') {
+                socket.connect();
+            }
+        });
         socket.on('delete:message', this.deleteMessageRealTime);
     }
     deleteMessageRealTime(data){
@@ -37,16 +42,17 @@ class ChatMessage extends React.Component {
 
     handleChange(event) {
         let value = event.target.value;
-        this.props.editMessage(this.props.index, value, this.props.id, this.props.message.receiver, this.props.createdAt);
+        this.props.editMessage(this.props.index, value, this.props.message.id, 
+                               this.props.message.receiver, this.props.message.created_at);
     }
    deleteMessage(event) {
         event.preventDefault();
-        this.props.deleteMessage(this.props.index, this.props.id);
+        this.props.deleteMessage(this.props.index, this.props.message.id);
    }
 
   render() {
     return (
-        <div className={'bubble-container ' + this.props.bubbleDirection} key={this.props.id}>
+        <div className={'bubble-container ' + this.props.bubbleDirection} key={this.props.message.id}>
             <Grid>
                 <Row>
                     <div>

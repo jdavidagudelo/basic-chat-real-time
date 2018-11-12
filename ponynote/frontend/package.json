@@ -24,6 +24,8 @@
     "css-loader": "0.28.4",
     "dotenv": "4.0.0",
     "enzyme": "^3.7.0",
+    "enzyme-adapter-react-15": "^1.2.0",
+    "enzyme-adapter-react-16": "^1.7.0",
     "eslint": "4.4.1",
     "eslint-config-react-app": "^2.0.1",
     "eslint-loader": "1.9.0",
@@ -58,6 +60,7 @@
     "react-router-dom": "^4.2.2",
     "react-textarea-autosize": "^7.1.0-1",
     "redux": "^3.7.2",
+    "redux-mock-provider": "^1.0.0",
     "redux-mock-store": "^1.5.3",
     "redux-thunk": "^2.3.0",
     "riek": "^1.1.0",
@@ -76,6 +79,7 @@
   "scripts": {
     "start": "node scripts/start.js",
     "build": "node scripts/build.js",
+    "test:debug": "node --inspect node_modules/.bin/jest --runInBand",
     "test": "node scripts/test.js --env=jsdom"
   },
   "jest": {

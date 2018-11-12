@@ -79,9 +79,10 @@ class Chat extends Component {
       <div>
         <h2>Chat Room</h2>
         <PanelGroup accordion id="accordion-example">
-            <ChatInput input={this.props.input} handleChange={this.handleChange}></ChatInput>
+            <ChatInput input={this.props.input} handleChange={this.handleChange} key="chat_input"></ChatInput>
             <ChatList editMessage={this.props.editMessage} deleteMessage={this.props.deleteMessage}
                 messages={this.props.messages} randomId={this.props.randomId}
+                key="chat_list"
                 deleteMessageRealTime={this.props.deleteMessageRealTime}></ChatList>
          </PanelGroup>
       </div>

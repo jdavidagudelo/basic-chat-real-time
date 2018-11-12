@@ -4,13 +4,42 @@ import messageReducer from './chats';
 import {addMessage, changeInput, fetchChats, ADD, CHANGE_INPUT, 
         EDIT_MESSAGE, FETCH_CHATS, DELETE_MESSAGE, CHANGE_SHIFT_PRESSED} from '../actions/chats';
 import { shallow } from 'enzyme';
+import * as enzyme from 'enzyme';
+import { mount } from 'enzyme';
+import { configure } from 'enzyme';
+import Adapter from 'enzyme-adapter-react-16';
+
 import fetchMock from 'fetch-mock';
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk';
 import expect from 'expect';
+import Chat from '../components/Chat';
+import MockProvider, { getMockStore } from 'redux-mock-provider';
+import renderer from 'react-test-renderer';
+
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 
+
+
+configure({ adapter: new Adapter() });
+
+
+describe('renders correctly', () => {
+    it('Renders chat component', () => {
+        const store = mockStore({ 
+            chats:{ messages: [{text: 'text', created_at: 'created_at',
+            receiver: {username: 'username'}, id: 1
+        }], randomId: 'randomId'}, auth: {token: 'token'} });
+        const component = mount(
+            <MockProvider store={store}>
+              <Chat />
+            </MockProvider>
+          );
+        const tree = renderer.create(component).toJSON();
+        //expect(component).toMatchSnapshot();
+    })
+});
 
 describe('reducer functions', () => {
     it('add message ', () => {

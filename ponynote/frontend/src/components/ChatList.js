@@ -22,7 +22,7 @@ class ChatList extends React.Component {
                     let bubbleClass = index % 2? 'bubble me': 'bubble you';
                     let bubbleDirection = index % 2? 'bubble-container bubble-direction-reverse': 'bubble-container bubble-direction';
                     return (
-                        <ChatMessage message={message} id={message.id} bubbleDirection={bubbleDirection}
+                        <ChatMessage message={message} bubbleDirection={bubbleDirection}
                          index={index} bubbleClass={bubbleClass} key={message.id} createdAt={message.created_at}
                          editMessage={this.props.editMessage} user={message.receiver}
                          randomId={this.props.randomId}
