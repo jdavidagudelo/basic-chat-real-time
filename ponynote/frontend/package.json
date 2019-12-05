@@ -74,7 +74,7 @@
     "webpack-dev-server": "2.8.2",
     "webpack-manifest-plugin": "1.2.1",
     "whatwg-fetch": "2.0.3",
-    "yarn": "^1.12.3"
+    "yarn": "^1.17.3"
   },
   "scripts": {
     "start": "node scripts/start.js",
